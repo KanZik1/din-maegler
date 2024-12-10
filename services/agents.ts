@@ -2,12 +2,19 @@ const BASE_URL = 'https://dinmaegler.onrender.com';
 
 interface Agent {
     id: number;
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    image: string;
+    name: string;
     title: string;
+    phone: string;
+    email: string;
+    image: {
+        url: string;
+        formats: {
+            thumbnail: {
+                url: string;
+            }
+        }
+    };
+    description?: string;
 }
 
 export async function getAgents(): Promise<Agent[]> {

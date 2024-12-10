@@ -25,7 +25,8 @@ export default function TeamSection() {
         const fetchAgents = async () => {
             try {
                 const data = await getAgents();
-                setAgents(data);
+                // Cast to unknown first to avoid type error
+                setAgents((data as unknown) as Agent[]);
             } catch (error) {
                 console.error('Fejl ved indlæsning af agents:', error);
             } finally {

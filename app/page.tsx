@@ -17,7 +17,7 @@ export default function Home() {
       <Hero />
       <StatsSection />
       <FeaturesSection />
-      <PropertyGrid />
+      <PropertyGrid limit={4} />
       <NewsletterSection />
       <TeamSection />
       <AppDownload />
