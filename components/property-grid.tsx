@@ -1,127 +1,56 @@
+'use client'
+
+import { useEffect, useState } from 'react'
 import { PropertyCard } from "./property-card"
-
-const properties = [
-    {
-        id: "1",
-        title: "Klosterengen 234",
-        address: "4000 Roskilde",
-        type: "Villa",
-        area: "Ejerudgift: 4.567 kr.",
-        price: 4567890,
-        rooms: 4,
-        squareMeters: 156,
-        imageUrl: "/House1.png",
-        badgeColor: "green" as const,
-        badgeLetter: "A"
-    },
-    {
-        id: "2",
-        title: "Lønbjergparken 22 · Vindinge",
-        address: "4000 Roskilde",
-        type: "Villa",
-        area: "Ejerudgift: 4.567 kr.",
-        price: 4567890,
-        rooms: 4,
-        squareMeters: 156,
-        imageUrl: "/House2.png",
-        badgeColor: "secondary" as const,
-        badgeLetter: "B"
-    },
-    {
-        id: "fjordvege-234",
-        title: "Fjordvege 234 · Gevninge",
-        address: "4000 Roskilde",
-        type: "Villa",
-        area: "Ejerudgift: 4.567 kr.",
-        price: 4567890,
-        rooms: 4,
-        squareMeters: 156,
-        imageUrl: "/House3.png",
-        badgeColor: "default" as const,
-        badgeLetter: "C"
-    },
-    {
-        id: "solvejvej-123",
-        title: "Solvejvej 123 · Veddelev",
-        address: "4000 Roskilde",
-        type: "Villa",
-        area: "Ejerudgift: 4.567 kr.",
-        price: 4567890,
-        rooms: 4,
-        squareMeters: 156,
-        imageUrl: "/House4.png",
-        badgeColor: "destructive" as const,
-        badgeLetter: "D"
-    },
-    {
-        id: "5",
-        title: "Himmelev Bygade 42",
-        address: "4000 Roskilde",
-        type: "Villa",
-        area: "Ejerudgift: 4.567 kr.",
-        price: 4567890,
-        rooms: 4,
-        squareMeters: 156,
-        imageUrl: "/House1.png",
-        badgeColor: "default" as const,
-        badgeLetter: "C"
-    },
-    {
-        id: "6",
-        title: "Sønderlundsvej 58",
-        address: "4000 Roskilde",
-        type: "Villa",
-        area: "Ejerudgift: 4.567 kr.",
-        price: 4567890,
-        rooms: 4,
-        squareMeters: 156,
-        imageUrl: "/House2.png",
-        badgeColor: "secondary" as const,
-        badgeLetter: "B"
-    },
-    {
-        id: "7",
-        title: "Sønderlundsvej 58",
-        address: "4000 Roskilde",
-        type: "Villa",
-        area: "Ejerudgift: 4.567 kr.",
-        price: 4567890,
-        rooms: 4,
-        squareMeters: 156,
-        imageUrl: "/House2.png",
-        badgeColor: "secondary" as const,
-        badgeLetter: "B"
-    },
-    {
-        id: "8",
-        title: "Sønderlundsvej 58",
-        address: "4000 Roskilde",
-        type: "Villa",
-        area: "Ejerudgift: 4.567 kr.",
-        price: 4567890,
-        rooms: 4,
-        squareMeters: 156,
-        imageUrl: "/House2.png",
-        badgeColor: "secondary" as const,
-        badgeLetter: "B"
-    },
-
-    
-]
+import { getHomes } from '@/services/homes'
+import type { Home } from '@/services/homes'
 
 interface PropertyGridProps {
-    limit?: number;
-    showTitle?: boolean;
-    title?: string;
-    description?: string;
+    limit?: number
+    showTitle?: boolean
+    title?: string
+    description?: string
 }
 
-export function PropertyGrid({ 
-    limit = 4, 
+export function PropertyGrid({
+    limit = 4,
     showTitle = true,
     title = "Udvalgte Boliger",
     description = "There are many variations of passages of Lorem Ipsum available but the in majority have suffered alteration in some"
 }: PropertyGridProps) {
+    const [mounted, setMounted] = useState(false)
+    const [homes, setHomes] = useState<Home[]>([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState<string | null>(null)
+
+    useEffect(() => {
+        setMounted(true)
+        const fetchHomes = async () => {
+            try {
+                const data = await getHomes()
+                setHomes(data)
+            } catch (error) {
+                setError('Kunne ikke hente boliger')
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchHomes()
+    }, [])
+
+    if (!mounted) return null
+
+    if (error) {
+        return <div className="text-center py-10 text-red-600">{error}</div>
+    }
+
+    if (loading) {
+        return <div className="text-center py-10">Indlæser boliger...</div>
+    }
+
+    const displayHomes = limit ? homes.slice(0, limit) : homes
+
     return (
         <div className="mx-auto max-w-7xl px-4 py-12">
             {showTitle && (
@@ -133,8 +62,8 @@ export function PropertyGrid({
                 </div>
             )}
             <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
-                {properties.slice(0, limit).map((property) => (
-                    <PropertyCard key={property.id} {...property} />
+                {displayHomes.map((home) => (
+                    <PropertyCard key={home.id} {...home} />
                 ))}
             </div>
             <div className="mt-12 text-center">

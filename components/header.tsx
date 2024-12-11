@@ -1,32 +1,97 @@
-import Link from "next/link"
-import { Mail, Phone } from 'lucide-react'
+'use client'
+
+import { isAuthenticated, logout } from '@/services/auth'
+import { useRouter } from 'next/navigation'
+import Image from 'next/image'
+import { useState, useEffect } from 'react'
 
 export default function Header() {
-  return (
-    <header className="w-full bg-[#1B2A4E] text-white py-1">
-      <div className="container mx-auto px-4 flex justify-between items-center">
-        <div className="flex items-center space-x-6">
-          <Link
-            href="mailto:4000@dynamicejr.com"
-            className="flex items-center hover:text-gray-200 text-sm"
-          >
-            <Mail className="h-4 w-4 mr-2" />
-            <span>4000@dynamicejr.com</span>
-          </Link>
-          <Link
-            href="tel:+4570704000"
-            className="flex items-center hover:text-gray-200 text-sm"
-          >
-            <Phone className="h-4 w-4 mr-2" />
-            <span>+45 7070 4000</span>
-          </Link>
+  const router = useRouter()
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setIsLoggedIn(isAuthenticated())
+    setMounted(true)
+  }, [])
+
+  const handleLogout = () => {
+    logout()
+    setIsLoggedIn(false)
+    router.push('/login')
+  }
+
+  if (!mounted) {
+    return (
+      <header className="bg-white py-4">
+        <div className="container mx-auto px-16 flex justify-between items-center">
+          <div className="flex items-center gap-8">
+            <a href="mailto:4000@dynamicweb.com" className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2">
+              <Image
+                src="/icons/email.png"
+                alt="Email"
+                width={20}
+                height={20}
+              />
+              4000@dynamicweb.com
+            </a>
+            <a href="tel:+4570704000" className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2">
+              <Image
+                src="/icons/phone.png"
+                alt="Phone"
+                width={20}
+                height={20}
+              />
+              +45 7070 4000
+            </a>
+          </div>
+          <div>
+            <a href="/login" className="text-sm text-gray-600 hover:text-gray-900">
+              Log ind
+            </a>
+          </div>
         </div>
-        <Link
-          href="/login"
-          className="text-sm hover:text-gray-200"
-        >
-          <span>Log ind</span>
-        </Link>
+      </header>
+    )
+  }
+
+  return (
+    <header className="bg-white py-4">
+      <div className="container mx-auto px-16 flex justify-between items-center">
+        <div className="flex items-center gap-8">
+          <a href="mailto:4000@dynamicweb.com" className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2">
+            <Image
+              src="/icons/email.png"
+              alt="Email"
+              width={20}
+              height={20}
+            />
+            4000@dynamicweb.com
+          </a>
+          <a href="tel:+4570704000" className="text-sm text-gray-600 hover:text-gray-900 flex items-center gap-2">
+            <Image
+              src="/icons/phone.png"
+              alt="Phone"
+              width={20}
+              height={20}
+            />
+            +45 7070 4000
+          </a>
+        </div>
+        <div>
+          {isLoggedIn ? (
+            <button
+              onClick={handleLogout}
+              className="text-sm text-gray-600 hover:text-gray-900"
+            >
+              Log ud
+            </button>
+          ) : (
+            <a href="/login" className="text-sm text-gray-600 hover:text-gray-900">
+              Log ind
+            </a>
+          )}
+        </div>
       </div>
     </header>
   )
