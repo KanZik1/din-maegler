@@ -4,6 +4,7 @@ import { getAgents } from '@/services/agents';
 import { useEffect, useState } from 'react';
 import { Mail, Linkedin } from 'lucide-react';
 import NextImage from 'next/image';
+import Link from 'next/link'
 
 interface Agent {
     name: string;
@@ -90,9 +91,12 @@ export default function TeamSection() {
                     ))}
                 </div>
                 <div className="text-center mt-12">
-                    <button className="bg-[#162A41] text-white px-8 py-3 rounded hover:bg-[#2C4460] transition-colors">
-                        Se alle mæglere
-                    </button>
+                    
+                    <Link href="/maeglere">
+                        <button className="bg-[#162A41] text-white px-8 py-3 rounded hover:bg-[#2C4460] transition-colors">
+                            Se alle mæglere
+                        </button>
+                    </Link>
                 </div>
             </div>
         </section>

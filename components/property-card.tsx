@@ -4,46 +4,25 @@ import { Badge } from "./ui/badge"
 import Image from "next/image"
 import Link from "next/link"
 import { Heart } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { toggleFavorite, checkIsFavorite } from '@/services/favorites'
 import { isAuthenticated } from '@/services/auth'
-import { useRouter } from 'next/navigation'
 
-interface PropertyImage {
-    url: string
-    alternativeText?: string
-}
-
-interface PropertyDetails {
-    id: number
+interface PropertyCardProps {
+    id: string
     title: string
     address: string
     type: string
     price: number
     rooms: number
-    size: number
+    squareMeters: number
     energyLabel: string
-    images?: PropertyImage[]
+    imageUrl: string
 }
 
-export function PropertyCard(props: PropertyDetails) {
-    const router = useRouter()
-    const [mounted, setMounted] = useState(false)
+export function PropertyCard(props: PropertyCardProps) {
     const [isFavorite, setIsFavorite] = useState(false)
     const [loading, setLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
-
-    useEffect(() => {
-        setMounted(true)
-        async function checkFavoriteStatus() {
-            if (isAuthenticated()) {
-                const { isFavorite } = await checkIsFavorite(props.id)
-                setIsFavorite(isFavorite)
-            }
-        }
-
-        checkFavoriteStatus()
-    }, [props.id])
 
     const handleFavoriteClick = async (e: React.MouseEvent) => {
         e.preventDefault()
@@ -66,17 +45,6 @@ export function PropertyCard(props: PropertyDetails) {
         }
     }
 
-    // Sikker håndtering af billeder med fallbacks
-    const defaultImage = '/placeholder.png'
-    const imageUrl = props.images && props.images.length > 0 && props.images[0]?.url ? props.images[0].url : defaultImage
-    const imageAlt = props.images && props.images.length > 0 && props.images[0]?.alternativeText
-        ? props.images[0].alternativeText
-        : `${props.type} på ${props.address}`
-
-    if (!mounted) {
-        return null
-    }
-
     return (
         <Link href={`/boliger/${props.id}`} className="block group">
             <div className="overflow-hidden rounded-lg border bg-white shadow-sm">
@@ -93,8 +61,8 @@ export function PropertyCard(props: PropertyDetails) {
                         />
                     </button>
                     <Image
-                        src={imageUrl}
-                        alt={imageAlt}
+                        src={props.imageUrl}
+                        alt={`${props.type} på ${props.address}`}
                         fill
                         className="object-cover transition-transform duration-300 group-hover:scale-105"
                     />
@@ -114,7 +82,7 @@ export function PropertyCard(props: PropertyDetails) {
                         >
                             <span className="font-bold">{props.energyLabel}</span>
                             <span className="ml-1">
-                                {props.rooms} værelser · {props.size} m²
+                                {props.rooms} værelser · {props.squareMeters} m²
                             </span>
                         </Badge>
                         <div className="ml-auto font-semibold">

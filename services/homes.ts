@@ -1,5 +1,7 @@
 const BASE_URL = 'https://dinmaegler.onrender.com';
 
+const homeCache = new Map()
+
 export interface Home {
     id: number;
     title: string;
@@ -21,42 +23,23 @@ export async function getHomes(): Promise<Home[]> {
     return response.json();
 }
 
-export async function getHome(id: string | number) {
-    console.log('Forsøger at hente bolig med ID:', id);
+export async function getHome(id: string) {
+    // Check cache først
+    if (homeCache.has(id)) {
+        return homeCache.get(id)
+    }
+
     try {
-        // Konverter ID til string og fjern eventuelle whitespace
-        const cleanId = String(id).trim();
-        console.log('Renset ID:', cleanId);
-
-        const url = `${BASE_URL}/homes/${cleanId}`;
-        console.log('Fetching fra URL:', url);
-
-        const response = await fetch(url);
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('API fejl status:', response.status);
-            console.error('API fejl tekst:', errorText);
-            throw new Error(`Kunne ikke hente bolig (${response.status})`);
-        }
-
-        const data = await response.json();
-
-        // Konverter data til det korrekte format
-        return {
-            id: data.id,
-            title: data.title,
-            address: data.address,
-            type: data.type,
-            price: data.price,
-            rooms: data.rooms,
-            size: data.size,
-            energyLabel: data.energyLabel,
-            images: data.images || []
-        };
+        const response = await fetch(`${BASE_URL}/homes/${id}`)
+        if (!response.ok) throw new Error('Kunne ikke hente bolig')
+        const data = await response.json()
+        
+        // Gem i cache
+        homeCache.set(id, data)
+        return data
     } catch (error) {
-        console.error('Detaljeret fejl ved hentning af bolig:', error);
-        throw new Error('Kunne ikke hente bolig');
+        console.error(`Fejl ved hentning af bolig ${id}:`, error)
+        throw error
     }
 }
 
