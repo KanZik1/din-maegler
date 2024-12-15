@@ -50,7 +50,6 @@ export function PropertyCard(props: PropertyDetails) {
         e.stopPropagation()
 
         if (!isAuthenticated()) {
-            // Redirect til login hvis ikke logget ind
             window.location.href = '/login'
             return
         }
@@ -58,7 +57,8 @@ export function PropertyCard(props: PropertyDetails) {
         setLoading(true)
         try {
             await toggleFavorite(props.id)
-            setIsFavorite(!isFavorite)
+            const { isFavorite: newStatus } = await checkIsFavorite(props.id)
+            setIsFavorite(newStatus)
         } catch (error) {
             console.error('Fejl ved favorit handling:', error)
         } finally {

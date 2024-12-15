@@ -1,85 +1,61 @@
-import { getToken } from '@/services/auth';
+import { getToken, getUser } from '@/services/auth';
 const BASE_URL = 'https://dinmaegler.onrender.com';
-
-interface FavoriteResponse {
-    data: Array<{
-        id: number
-        attributes: {
-            home: {
-                data: {
-                    id: number
-                }
-            }
-        }
-    }>
-}
 
 export async function getFavorites(): Promise<string[]> {
     const token = getToken();
-    if (!token) return [];
+    const user = getUser();
+    if (!token || !user) return [];
 
     try {
-        const response = await fetch(`${BASE_URL}/favorites`, {
+        const response = await fetch(`${BASE_URL}/users/me`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         });
 
         if (!response.ok) {
-            console.error('Favorites error status:', response.status);
-            const errorText = await response.text();
-            console.error('Favorites error:', errorText);
             throw new Error('Kunne ikke hente favoritter');
         }
 
         const data = await response.json();
-        console.log('Favorit data modtaget:', data);
-
-        const favoriteIds = data.data?.map((fav: any) =>
-            fav.attributes?.home?.data?.id?.toString()
-        ).filter(Boolean) || [];
-
-        console.log('Behandlede favorit IDs:', favoriteIds);
-        return favoriteIds;
+        return data.homes || [];
     } catch (error) {
         console.error('Error fetching favorites:', error);
         return [];
     }
 }
 
-export async function toggleFavorite(homeId: number): Promise<void> {
+export async function toggleFavorite(homeId: string): Promise<void> {
     const token = getToken();
-    if (!token) throw new Error('Ikke logget ind');
+    const user = getUser();
+    if (!token || !user) throw new Error('Ikke logget ind');
 
     try {
-        const { isFavorite, favoriteId } = await checkIsFavorite(homeId);
+        // Hent nuværende favoritter
+        const currentFavorites = await getFavorites();
 
-        if (isFavorite && favoriteId) {
-            // Fjern favorit
-            const response = await fetch(`${BASE_URL}/favorites/${favoriteId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+        // Tjek om boligen allerede er favorit
+        const isFavorite = currentFavorites.includes(homeId);
 
-            if (!response.ok) throw new Error('Kunne ikke fjerne favorit');
-        } else {
-            // Tilføj favorit
-            const response = await fetch(`${BASE_URL}/favorites`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    data: {
-                        home: homeId
-                    }
-                })
-            });
+        // Opdater listen af favoritter
+        const newFavorites = isFavorite
+            ? currentFavorites.filter(id => id !== homeId)
+            : [...currentFavorites, homeId];
 
-            if (!response.ok) throw new Error('Kunne ikke tilføje favorit');
+        // Send opdateret liste til API'en
+        const response = await fetch(`${BASE_URL}/users/${user.id}`, {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                homes: newFavorites
+            })
+        });
+
+        if (!response.ok) {
+            throw new Error('Kunne ikke opdatere favoritter');
         }
     } catch (error) {
         console.error('Toggle favorite error:', error);
@@ -87,30 +63,10 @@ export async function toggleFavorite(homeId: number): Promise<void> {
     }
 }
 
-export async function checkIsFavorite(homeId: number): Promise<{ isFavorite: boolean, favoriteId?: string }> {
-    const token = getToken();
-    if (!token) return { isFavorite: false };
-
+export async function checkIsFavorite(homeId: string): Promise<{ isFavorite: boolean }> {
     try {
-        const response = await fetch(`${BASE_URL}/favorites`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error('Kunne ikke tjekke favorit status');
-        }
-
-        const data = await response.json();
-        const existingFavorite = data.data?.find((fav: any) =>
-            fav.attributes?.home?.data?.id === homeId
-        );
-
-        return {
-            isFavorite: !!existingFavorite,
-            favoriteId: existingFavorite?.id?.toString()
-        };
+        const favorites = await getFavorites();
+        return { isFavorite: favorites.includes(homeId) };
     } catch (error) {
         console.error('Check favorite error:', error);
         return { isFavorite: false };

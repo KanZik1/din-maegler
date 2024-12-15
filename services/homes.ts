@@ -12,11 +12,6 @@ export interface Home {
     images: {
         url: string;
         alternativeText: string;
-        formats: {
-            thumbnail: {
-                url: string;
-            }
-        }
     }[];
 }
 
@@ -26,22 +21,43 @@ export async function getHomes(): Promise<Home[]> {
     return response.json();
 }
 
-export async function getHome(id: number) {
-    const response = await fetch(`${BASE_URL}/homes/${id}?populate=*`);
+export async function getHome(id: string | number) {
+    console.log('Forsøger at hente bolig med ID:', id);
+    try {
+        // Konverter ID til string og fjern eventuelle whitespace
+        const cleanId = String(id).trim();
+        console.log('Renset ID:', cleanId);
 
-    if (!response.ok) {
+        const url = `${BASE_URL}/homes/${cleanId}`;
+        console.log('Fetching fra URL:', url);
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('API fejl status:', response.status);
+            console.error('API fejl tekst:', errorText);
+            throw new Error(`Kunne ikke hente bolig (${response.status})`);
+        }
+
+        const data = await response.json();
+
+        // Konverter data til det korrekte format
+        return {
+            id: data.id,
+            title: data.title,
+            address: data.address,
+            type: data.type,
+            price: data.price,
+            rooms: data.rooms,
+            size: data.size,
+            energyLabel: data.energyLabel,
+            images: data.images || []
+        };
+    } catch (error) {
+        console.error('Detaljeret fejl ved hentning af bolig:', error);
         throw new Error('Kunne ikke hente bolig');
     }
-
-    const data = await response.json();
-    return {
-        id: data.data.id,
-        ...data.data.attributes,
-        images: data.data.attributes.images.data.map((image: any) => ({
-            url: image.attributes.url,
-            alternativeText: image.attributes.alternativeText
-        }))
-    };
 }
 
 export async function getHomesInPriceRange(minPrice: number, maxPrice: number): Promise<Home[]> {

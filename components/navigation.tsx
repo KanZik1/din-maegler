@@ -33,7 +33,7 @@ export default function Navigation() {
                             <span>Mæglere</span>
                         </Link>
                         <Link
-                            href="/favoritter"
+                            href="/mine-favoritter"
                             className="text-gray-700 hover:text-gray-900"
                         >
                             <span>Mine favoritter</span>
