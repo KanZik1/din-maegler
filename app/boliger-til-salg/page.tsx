@@ -1,25 +1,26 @@
-import { getHomes } from '@/services/homes'
+import { getProperties } from '@/services/property'
 import { HomesClient } from '@/components/homes/HomesClient'
 import Image from 'next/image'
 
 export default async function BoligerTilSalgPage() {
     try {
-        const initialHomes = await getHomes()
+        const initialHomes = await getProperties()
         
         return (
             <div className="min-h-screen bg-white">
                 <div className="relative h-[300px] w-full">
-                    <div className="absolute inset-0 bg-black/50 z-10" />
                     <Image
-                        src="/kontakt-hero.jpg"
-                        alt="Boliger til salg"
+                        src="/Herobanner.png"
+                        alt="Boliger til salg hero billede"
                         fill
                         className="object-cover"
                         priority
                     />
-                    <h1 className="absolute z-20 text-white text-4xl font-bold text-center w-full top-1/2 transform -translate-y-1/2">
-                        Boliger til salg
-                    </h1>
+                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                        <h1 className="text-4xl font-bold text-white">
+                            Boliger til salg
+                        </h1>
+                    </div>
                 </div>
 
                 <HomesClient initialHomes={initialHomes} />

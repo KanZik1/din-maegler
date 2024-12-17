@@ -118,7 +118,7 @@ export default function MaeglerePage() {
             <div className="relative h-[300px] w-full">
                 <div className="absolute inset-0 bg-black/50 z-10" />
                 <Image
-                    src="/maegler-hero.jpg"
+                    src="/Herobanner.png"
                     alt="Mæglere hero"
                     fill
                     className="object-cover"

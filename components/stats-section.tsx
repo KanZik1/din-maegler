@@ -10,7 +10,7 @@ export default function StatsSection() {
                     <div className="relative w-full aspect-square max-w-[500px]">
                         <Image
                             src="/FamilyPicture.png"
-                            alt="Familie med barn"
+                            alt="Familie med barn foran hus"
                             fill
                             className="object-cover"
                         />

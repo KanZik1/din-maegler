@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { PropertyCard } from "./property-card"
-import { getHomes } from '@/services/homes'
-import type { Home } from '@/services/homes'
+import { getProperties } from '@/services/property'
+import type { Property } from '@/services/property'
 
 interface PropertyGridProps {
     limit?: number
@@ -18,58 +18,73 @@ export function PropertyGrid({
     title = "Udvalgte Boliger",
     description = "There are many variations of passages of Lorem Ipsum available but the in majority have suffered alteration in some"
 }: PropertyGridProps) {
-    const [mounted, setMounted] = useState(false)
-    const [homes, setHomes] = useState<Home[]>([])
+    const [properties, setProperties] = useState<Property[]>([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
 
     useEffect(() => {
-        setMounted(true)
-        const fetchHomes = async () => {
+        const fetchProperties = async () => {
             try {
-                const data = await getHomes()
-                setHomes(data)
-            } catch (error) {
+                setLoading(true)
+                const data = await getProperties()
+                // Tilføj base URL til billeder hvis nødvendigt
+                const propertiesWithImages = data.map(property => ({
+                    ...property,
+                    images: property.images?.map(img => ({
+                        ...img,
+                        url: img.url?.startsWith('http') 
+                            ? img.url 
+                            : `https://dinmaegler.onrender.com${img.url}`
+                    }))
+                }))
+                setProperties(propertiesWithImages)
+            } catch (err) {
                 setError('Kunne ikke hente boliger')
+                console.error('Fejl ved hentning af boliger:', err)
             } finally {
                 setLoading(false)
             }
         }
 
-        fetchHomes()
+        fetchProperties()
     }, [])
-
-    if (!mounted) return null
-
-    if (error) {
-        return <div className="text-center py-10 text-red-600">{error}</div>
-    }
 
     if (loading) {
         return <div className="text-center py-10">Indlæser boliger...</div>
     }
 
-    const displayHomes = limit ? homes.slice(0, limit) : homes
+    if (error) {
+        return <div className="text-center py-10 text-red-500">{error}</div>
+    }
+
+    const displayProperties = limit ? properties.slice(0, limit) : properties
 
     return (
-        <div className="mx-auto max-w-7xl px-4 py-12">
+        <div className="container mx-auto px-4 py-16">
             {showTitle && (
-                <div className="text-center">
-                    <h2 className="text-3xl font-bold">{title}</h2>
-                    <p className="mt-2 text-gray-600">
+                <div className="text-center mb-12">
+                    <h2 className="text-3xl font-semibold mb-4">{title}</h2>
+                    <p className="text-gray-600 max-w-2xl mx-auto">
                         {description}
                     </p>
                 </div>
             )}
-            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
-                {displayHomes.map((home) => (
-                    <PropertyCard key={home.id} {...home} />
+
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
+                {displayProperties.map((property) => (
+                    <PropertyCard
+                        key={property.id}
+                        id={property.id}
+                        title={property.title}
+                        address={property.address}
+                        type={property.type}
+                        price={property.price}
+                        rooms={property.rooms}
+                        squareMeters={property.size}
+                        energyLabel={property.energyLabel}
+                        images={property.images}
+                    />
                 ))}
-            </div>
-            <div className="mt-12 text-center">
-                <button className="rounded-md bg-primary px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-primary/90">
-                    Se alle boliger
-                </button>
             </div>
         </div>
     )

@@ -10,7 +10,7 @@ export default function KontaktPage() {
             <div className="relative h-[300px] w-full">
                 <div className="absolute inset-0 bg-black/50 z-10" />
                 <Image
-                    src="/kontakt-hero.jpg"
+                    src="/Herobanner.png"
                     alt="Kontakt os"
                     fill
                     className="object-cover"

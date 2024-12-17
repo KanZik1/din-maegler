@@ -24,7 +24,7 @@ export default function FavoritesPage() {
             <div className="relative h-[300px] w-full">
                 <div className="absolute inset-0 bg-black/50 z-10" />
                 <Image
-                    src="/kontakt-hero.jpg"
+                    src="/Herobanner.png"
                     alt="Favoritboliger hero billede - oversigt over dine gemte boliger"
                     fill
                     className="object-cover"

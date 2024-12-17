@@ -1,10 +1,18 @@
+import Image from 'next/image';
+
 const Footer = () => {
     return (
         <footer className="bg-white relative">
             <div className="container mx-auto px-16 py-12">
                 {/* Logo og tekst */}
                 <div className="max-w-[400px] mb-8">
-                    <img src="/Logo.svg" alt="Din Mægler" className="h-8 mb-4" />
+                    <Image 
+                        src="/Logo.svg" 
+                        alt="Din Mægler logo"
+                        width={120}
+                        height={32}
+                        className="h-8 mb-4"
+                    />
                     <p className="text-gray-600 text-sm">
                         There are many variations of passages of Lorem Ipsum available, but the majority have
                         suffered alteration in some form, by injected humour, or randomised words.
@@ -69,7 +77,13 @@ const Footer = () => {
                         {/* DMS Logo */}
                         <div className="mt-8">
                             <p className="text-xs text-gray-500 mb-1">MEDLEM AF</p>
-                            <img src="/dms-logo.svg" alt="Dansk Mægler Sammenslutning" className="h-6" />
+                            <Image 
+                                src="/dms-logo.svg" 
+                                alt="Dansk Mægler Sammenslutning logo" 
+                                width={100}
+                                height={24}
+                                className="h-6"
+                            />
                         </div>
                     </div>
                 </div>

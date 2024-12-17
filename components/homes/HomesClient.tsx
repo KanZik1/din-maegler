@@ -1,166 +1,104 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { getHomesInPriceRange, getHomesByType, type Home } from '@/services/homes'
+import { useState, useEffect } from 'react'
 import { PropertyCard } from '../property-card'
+import type { Property } from '@/services/property'
 
 interface HomesClientProps {
-    initialHomes: Home[]
+    initialHomes: Property[]
 }
 
 export function HomesClient({ initialHomes }: HomesClientProps) {
-    const [mounted, setMounted] = useState(false)
-    const [homes, setHomes] = useState<Home[]>(initialHomes)
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
+    const [properties, setProperties] = useState<Property[]>(initialHomes)
     const [priceRange, setPriceRange] = useState(12000000)
-    const [selectedType, setSelectedType] = useState<string>('')
+    const [selectedType, setSelectedType] = useState<string>('all')
+    const [loading, setLoading] = useState(false)
+
+    const filterProperties = () => {
+        let filtered = [...initialHomes]
+
+        // Filtrer efter pris
+        filtered = filtered.filter(property => property.price <= priceRange)
+
+        // Filtrer efter type hvis en specifik type er valgt
+        if (selectedType !== 'all') {
+            filtered = filtered.filter(property => property.type === selectedType)
+        }
+
+        setProperties(filtered)
+    }
 
     useEffect(() => {
-        setMounted(true)
-    }, [])
-
-    const handleFilter = async () => {
-        setLoading(true)
-        setError(null)
-        try {
-            let filteredHomes: Home[]
-            if (selectedType) {
-                filteredHomes = await getHomesByType(selectedType)
-            } else if (priceRange > 0) {
-                filteredHomes = await getHomesInPriceRange(0, priceRange)
-            } else {
-                filteredHomes = initialHomes
-            }
-            setHomes(filteredHomes)
-        } catch (err) {
-            setError('Kunne ikke filtrere boliger')
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    const handlePriceChange = useCallback(async (value: number) => {
-        setLoading(true)
-        try {
-            if (value >= 12000000) {
-                setHomes(initialHomes)
-            } else {
-                const filteredHomes = initialHomes.filter(home => home.price <= value)
-                setHomes(filteredHomes)
-            }
-        } catch (err) {
-            setError('Kunne ikke filtrere boliger')
-        } finally {
-            setLoading(false)
-        }
-    }, [initialHomes])
-
-    if (!mounted) {
-        return (
-            <div className="mx-auto max-w-7xl px-4 py-12">
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
-                    {initialHomes.map((home) => (
-                        <PropertyCard
-                            key={home.id}
-                            id={home.id.toString()}
-                            title={home.title}
-                            address={home.address}
-                            type={home.type}
-                            price={home.price}
-                            rooms={home.rooms}
-                            squareMeters={home.size}
-                            energyLabel={home.energyLabel}
-                            imageUrl={home.images?.[0]?.url || '/placeholder.png'}
-                        />
-                    ))}
-                </div>
-            </div>
-        )
-    }
+        filterProperties()
+    }, [priceRange, selectedType])
 
     return (
-        <div className="mx-auto max-w-7xl px-4 py-12">
-            <div className="mb-12">
+        <div className="container mx-auto px-4 py-8">
+            {/* Filter sektion */}
+            <div className="mb-8">
                 <h2 className="text-xl font-semibold mb-4">Søg efter dit drømmehus</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Ejendomstype
-                        </label>
-                        <select
-                            value={selectedType}
-                            onChange={(e) => {
-                                setSelectedType(e.target.value)
-                                handleFilter()
-                            }}
-                            className="w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        >
-                            <option value="">Alle ejendomstyper</option>
-                            <option value="Villa">Villa</option>
-                            <option value="Lejlighed">Lejlighed</option>
-                            <option value="Rækkehus">Rækkehus</option>
-                        </select>
-                    </div>
+                
+                {/* Ejendomstype dropdown */}
+                <div className="mb-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Ejendomstype
+                    </label>
+                    <select
+                        value={selectedType}
+                        onChange={(e) => setSelectedType(e.target.value)}
+                        className="w-full p-2 border rounded-md"
+                    >
+                        <option value="all">Alle ejendomstyper</option>
+                        <option value="Villa">Villa</option>
+                        <option value="Rækkehus">Rækkehus</option>
+                        <option value="Ejerlejlighed">Ejerlejlighed</option>
+                    </select>
+                </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Pris: Op til {priceRange.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} kr
-                        </label>
-                        <input
-                            type="range"
-                            min="0"
-                            max="12000000"
-                            step="100000"
-                            value={priceRange}
-                            onChange={(e) => {
-                                const value = Number(e.target.value)
-                                setPriceRange(value)
-                                handlePriceChange(value)
-                            }}
-                            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer 
-                                [&::-webkit-slider-thumb]:appearance-none 
-                                [&::-webkit-slider-thumb]:h-4 
-                                [&::-webkit-slider-thumb]:w-4 
-                                [&::-webkit-slider-thumb]:rounded-full 
-                                [&::-webkit-slider-thumb]:bg-[#162A41] 
-                                [&::-webkit-slider-thumb]:cursor-pointer
-                                [&::-moz-range-thumb]:h-4 
-                                [&::-moz-range-thumb]:w-4 
-                                [&::-moz-range-thumb]:rounded-full 
-                                [&::-moz-range-thumb]:bg-[#162A41] 
-                                [&::-moz-range-thumb]:border-0
-                                [&::-moz-range-track]:bg-gray-200 
-                                [&::-moz-range-track]:rounded-lg"
-                        />
-                        <div className="flex justify-between text-sm text-gray-600 mt-2">
-                            <span>{0..toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} kr</span>
-                            <span>{12000000..toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} kr</span>
-                        </div>
+                {/* Pris-interval slider */}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Pris-interval
+                    </label>
+                    <input
+                        type="range"
+                        min="0"
+                        max="12000000"
+                        value={priceRange}
+                        onChange={(e) => setPriceRange(Number(e.target.value))}
+                        className="w-full"
+                    />
+                    <div className="flex justify-between text-sm text-gray-600">
+                        <span>0 kr</span>
+                        <span>Op til {priceRange.toLocaleString('da-DK')} kr</span>
                     </div>
                 </div>
             </div>
 
-            {error && (
-                <div className="text-red-600 mb-4">{error}</div>
-            )}
-
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
-                {homes.map((home) => (
+            {/* Properties grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {properties.map((property) => (
                     <PropertyCard
-                        key={home.id}
-                        id={home.id.toString()}
-                        title={home.title}
-                        address={home.address}
-                        type={home.type}
-                        price={home.price}
-                        rooms={home.rooms}
-                        squareMeters={home.size}
-                        energyLabel={home.energyLabel}
-                        imageUrl={home.images?.[0]?.url || '/placeholder.png'}
+                        key={property.id}
+                        id={property.id}
+                        title={property.title}
+                        address={property.address}
+                        type={property.type}
+                        price={property.price}
+                        rooms={property.rooms}
+                        squareMeters={property.size}
+                        energyLabel={property.energyLabel}
+                        images={property.images}
+                        area={`${property.price.toLocaleString('da-DK')} kr.`}
                     />
                 ))}
             </div>
+
+            {loading && (
+                <div className="text-center py-10">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+                </div>
+            )}
         </div>
     )
 } 

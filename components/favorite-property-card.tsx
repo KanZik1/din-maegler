@@ -33,7 +33,7 @@ export function FavoritePropertyCard(props: FavoritePropertyCardProps) {
                 <div className="relative w-[200px] h-[150px]">
                     <Image
                         src={props.imageUrl}
-                        alt={props.title}
+                        alt={`${props.title} - ${props.address}`}
                         fill
                         className="object-cover rounded-lg"
                     />

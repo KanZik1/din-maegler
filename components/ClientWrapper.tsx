@@ -30,7 +30,7 @@ export function FavoriteButton({ propertyId }: { propertyId: string }) {
         }
 
         try {
-            await toggleFavorite(parseInt(propertyId))
+            await toggleFavorite(propertyId)
             setIsFav(!isFav)
         } catch (error) {
             console.error('Fejl ved håndtering af favorit:', error)

@@ -1,94 +1,39 @@
 'use client'
 
-import { X } from 'lucide-react'
 import Image from 'next/image'
+import { X } from 'lucide-react'
 
 interface FloorplanViewProps {
-    onClose: () => void
     floorplanUrl: string
-    onViewChange: (view: 'gallery' | 'floorplan' | 'map' | 'favorite') => void
-    activeView: string
+    onClose: () => void
+    onViewChange: (view: 'gallery' | 'floorplan' | 'map' | null) => void
+    activeView: 'gallery' | 'floorplan' | 'map' | null
 }
 
-export function FloorplanView({ onClose, floorplanUrl, onViewChange, activeView }: FloorplanViewProps) {
+const DEFAULT_FLOORPLAN = '/floorplanview.png'
+
+export function FloorplanView({ floorplanUrl, onClose }: FloorplanViewProps) {
+    const imageUrl = floorplanUrl || DEFAULT_FLOORPLAN
+
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
-            <div className="relative w-full max-w-4xl mx-4">
-                <button 
+        <div className="fixed inset-0 bg-black bg-opacity-90 z-50 overflow-y-auto">
+            <div className="relative min-h-screen">
+                <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 text-white hover:text-gray-300"
+                    className="absolute top-4 right-4 text-white p-2 hover:bg-gray-800 rounded-full"
                 >
                     <X className="w-6 h-6" />
                 </button>
-                
-                {/* Plantegning */}
-                <div className="relative w-full h-[600px]">
-                    <Image
-                        src={"/floorplanview.png"}
-                        alt="Plantegning"
-                        fill
-                        className="object-contain"
-                    />
-                </div>
 
-                {/* Navigation ikoner */}
-                <div className="flex justify-center gap-10 mt-6">
-                    <button 
-                        onClick={() => onViewChange('gallery')}
-                        className="flex items-center justify-center group"
-                    >
-                        <Image 
-                            src="/icons/camera.png" 
-                            alt="Se billeder" 
-                            width={24} 
-                            height={24} 
-                            className={`opacity-40 group-hover:opacity-100 transition-opacity ${
-                                activeView === 'gallery' ? 'opacity-100' : ''
-                            }`}
+                <div className="container mx-auto px-4 py-16">
+                    <div className="relative h-[600px] w-full">
+                        <Image
+                            src={imageUrl}
+                            alt="Plantegning"
+                            fill
+                            className="object-contain"
                         />
-                    </button>
-                    <button 
-                        onClick={() => onViewChange('floorplan')}
-                        className="flex items-center justify-center group"
-                    >
-                        <Image 
-                            src="/icons/floorplan.png" 
-                            alt="Se plantegning" 
-                            width={24} 
-                            height={24} 
-                            className={`opacity-40 group-hover:opacity-100 transition-opacity ${
-                                activeView === 'floorplan' ? 'opacity-100' : ''
-                            }`}
-                        />
-                    </button>
-                    <button 
-                        onClick={() => onViewChange('map')}
-                        className="flex items-center justify-center group"
-                    >
-                        <Image 
-                            src="/icons/location.png" 
-                            alt="Se på kort" 
-                            width={24} 
-                            height={24} 
-                            className={`opacity-40 group-hover:opacity-100 transition-opacity ${
-                                activeView === 'map' ? 'opacity-100' : ''
-                            }`}
-                        />
-                    </button>
-                    <button 
-                        onClick={() => onViewChange('favorite')}
-                        className="flex items-center justify-center group"
-                    >
-                        <Image 
-                            src="/icons/heart.png" 
-                            alt="Tilføj til favoritter" 
-                            width={24} 
-                            height={24} 
-                            className={`opacity-40 group-hover:opacity-100 transition-opacity ${
-                                activeView === 'favorite' ? 'opacity-100' : ''
-                            }`}
-                        />
-                    </button>
+                    </div>
                 </div>
             </div>
         </div>

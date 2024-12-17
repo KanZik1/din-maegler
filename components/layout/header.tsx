@@ -36,7 +36,7 @@ export default function Header() {
                         >
                             <Image
                                 src="/icons/Mail.png"
-                                alt="Email"
+                                alt="Email ikon"
                                 width={16}
                                 height={16}
                             />
@@ -48,7 +48,7 @@ export default function Header() {
                         >
                             <Image
                                 src="/icons/Phone.png"
-                                alt="Phone"
+                                alt="Telefon ikon"
                                 width={16}
                                 height={16}
                             />
@@ -65,7 +65,7 @@ export default function Header() {
                             >
                                 <Image
                                     src="/icons/User.png"
-                                    alt="User"
+                                    alt="Bruger ikon"
                                     width={16}
                                     height={16}
                                 />
@@ -78,7 +78,7 @@ export default function Header() {
                             >
                                 <Image
                                     src="/icons/User.png"
-                                    alt="User"
+                                    alt="Bruger ikon"
                                     width={16}
                                     height={16}
                                 />

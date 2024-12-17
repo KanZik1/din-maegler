@@ -10,7 +10,7 @@ export default function Navigation() {
                     <Link href="/" className="flex items-center">
                         <Image
                             src="/Logo.svg"
-                            alt="DIN MÆGLER"
+                            alt="Din Mægler logo"
                             width={180}
                             height={40}
                             className="h-10 w-auto"

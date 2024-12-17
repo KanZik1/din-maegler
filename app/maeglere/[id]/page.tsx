@@ -54,7 +54,7 @@ export default function AgentPage({ params }: { params: Promise<{ id: string }> 
             <div className="relative h-[300px] w-full">
                 <div className="absolute inset-0 bg-black/50 z-10" />
                 <Image
-                    src="/kontakt-hero.jpg"
+                    src="/Herobanner.png"
                     alt="Kontakt os hero"
                     fill
                     className="object-cover"
